@@ -1,3 +1,7 @@
+CREATE DATABASE ADONET_TASKDB
+
+
+GO
 use ADONET_TASKDB
 
 
@@ -7,9 +11,12 @@ CREATE TABLE Providers (
     [Name] NVARCHAR(50) NOT NULL,
     [Address] NVARCHAR(50) NOT NULL,
     [Years] INT NOT NULL,
-    PRIMARY KEY (Id)
 );
 
+
+GO
+ALTER TABLE Providers
+ADD CONSTRAINT PK_Providers PRIMARY KEY (Id)
 
 GO
 CREATE TABLE Subscribers (
@@ -18,24 +25,32 @@ CREATE TABLE Subscribers (
     [LastName] NVARCHAR(50) NOT NULL,
     [Phone] NVARCHAR(50) NOT NULL,
     [Email] NVARCHAR(50) NOT NULL,
-    PRIMARY KEY (Id)
 );
+
+
+GO
+ALTER TABLE Subscribers
+ADD CONSTRAINT PK_Subscribers PRIMARY KEY (Id)
 
 
 GO
 CREATE TABLE Locations (
     [Id] INT IDENTITY(1,1) NOT NULL,
+    [Name] NVARCHAR(50) NOT NULL,
     [Region] NVARCHAR(50) NOT NULL,
     [Country] NVARCHAR(50) NOT NULL,
     [City] NVARCHAR(50) NOT NULL,
     [Zip] NVARCHAR(5) NOT NULL,
     [Latitude] DECIMAL(8,6) NOT NULL,
     [Longitude] DECIMAL(9,6) NOT NULL,
-	[SubscriberId] INT,
-    PRIMARY KEY (Id),
-	CONSTRAINT FK_SubscriberLocation FOREIGN KEY (SubscriberId) REFERENCES Subscribers(Id) ON DELETE SET NULL
+	[SubscriberId] INT
 );
 
+
+GO
+ALTER TABLE Locations
+ADD CONSTRAINT PK_Locations PRIMARY KEY (Id),
+	CONSTRAINT FK_SubscriberLocation FOREIGN KEY (SubscriberId) REFERENCES Subscribers(Id) ON DELETE SET NULL
 
 GO
 CREATE TABLE ProviderAssignments (
@@ -43,11 +58,15 @@ CREATE TABLE ProviderAssignments (
     [Rank] INT NOT NULL,
     [Trade] NVARCHAR(50) NOT NULL,
 	[ProviderId] INT,
-	[LocationId] INT,
-    PRIMARY KEY (Id),
+	[LocationId] INT
+);
+
+
+GO
+ALTER TABLE ProviderAssignments
+ADD CONSTRAINT PK_ProviderAssignments PRIMARY KEY (Id),
 	CONSTRAINT FK_AssignmentProvider FOREIGN KEY (ProviderId) REFERENCES Providers(Id) ON DELETE SET NULL,
 	CONSTRAINT FK_LocationProvider FOREIGN KEY (LocationId) REFERENCES Locations(Id) ON DELETE SET NULL
-);
 
 
 GO
@@ -71,22 +90,22 @@ VALUES
 
 
 GO
-INSERT INTO Locations ([Region], [Country], [City], [Zip], [Latitude], [Longitude], [SubscriberId])
+INSERT INTO Locations ([Name], [Region], [Country], [City], [Zip], [Latitude], [Longitude], [SubscriberId])
 VALUES
-		('PA', 'Luzerne', 'Hazleton', '18201', 40.951319, -75.272970, 1),
-		('PA', 'Luzerne', 'Hazleton', '18201', 41.951319, -75.272970, 1),
-		('PA', 'Luzerne', 'Hazleton', '18201', 43.951319, -75.272970, 1),
-		('PA', 'Luzerne', 'Hazleton', '18201', 44.951319, -75.272970, 1),
-		('PA', 'Luzerne', 'Hazleton', '18201', 45.951319, -75.272970, 1),
-		('PA', 'Luzerne', 'Hazleton', '18201', 46.951319, -75.272970, 1),
-		('PA', 'Luzerne', 'Hazleton', '18201', 47.951319, -75.272970, 1),
-		('PA', 'Luzerne', 'Hazleton', '18201', 48.951319, -75.272970, 1),
-		('PA', 'Luzerne', 'Hazleton', '18201', 49.951319, -75.272970, 1),
-		('PA', 'Luzerne', 'Hazleton', '18201', 50.951319, -75.272970, 1),
-		('NY', 'Suffolk County', 'West Islip', '11795', 40.951319, -75.972970, 2),
-		('WA', 'Benton', 'Kennewick', '99337', 40.951319, -75.972970, 3),
-		('AZ', 'Maricopa', 'Chandler', '85224', 40.951319, -75.972970, 4),
-		('MD', 'Prince Georges', 'Beltsville', '20705', 40.951319, -75.972970, 5)
+		('Name1', 'PA', 'Luzerne', 'Hazleton', '18201', 40.951319, -75.272970, 1),
+		('Name2', 'PA', 'Luzerne', 'Hazleton', '18201', 41.951319, -75.272970, 1),
+		('Name3', 'PA', 'Luzerne', 'Hazleton', '18201', 43.951319, -75.272970, 1),
+		('Name4', 'PA', 'Luzerne', 'Hazleton', '18201', 44.951319, -75.272970, 1),
+		('Name5', 'PA', 'Luzerne', 'Hazleton', '18201', 45.951319, -75.272970, 1),
+		('Name6', 'PA', 'Luzerne', 'Hazleton', '18201', 46.951319, -75.272970, 1),
+		('Name7', 'PA', 'Luzerne', 'Hazleton', '18201', 47.951319, -75.272970, 1),
+		('Name8', 'PA', 'Luzerne', 'Hazleton', '18201', 48.951319, -75.272970, 1),
+		('Name9', 'PA', 'Luzerne', 'Hazleton', '18201', 49.951319, -75.272970, 1),
+		('Name10', 'PA', 'Luzerne', 'Hazleton', '18201', 50.951319, -75.272970, 1),
+		('Name11', 'NY', 'Suffolk County', 'West Islip', '11795', 40.951319, -75.972970, 2),
+		('Name12', 'WA', 'Benton', 'Kennewick', '99337', 40.951319, -75.972970, 3),
+		('Name13', 'AZ', 'Maricopa', 'Chandler', '85224', 40.951319, -75.972970, 4),
+		('Name14', 'MD', 'Prince Georges', 'Beltsville', '20705', 40.951319, -75.972970, 5)
 
 
 GO
@@ -147,7 +166,7 @@ BEGIN
 	WITH OrderedSet AS
 	(
 		SELECT *, 
-		ROW_NUMBER() OVER (ORDER BY [Id] DESC) as [Index]
+		ROW_NUMBER() OVER (ORDER BY [Id] ASC) as [Index]
 		FROM Locations
 	)
 

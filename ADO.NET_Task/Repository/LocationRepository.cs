@@ -11,15 +11,16 @@ namespace ADO.NET_Task.Repository
 {
     public class LocationRepository : ILocationRepository
     {
-        private readonly string connection = ConfigurationManager.ConnectionStrings["AdoNetTask"].ConnectionString;
+        private readonly string connectionString = ConfigurationManager.ConnectionStrings["AdoNetTask"].ConnectionString;
         public Location GetLocationById(int locationId)
         {
             Location location = new Location();
 
-            using (SqlConnection connection = new SqlConnection())
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 SqlCommand command = new SqlCommand("sp_GetLocationById", connection);
                 command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@LocationId", locationId);
                 connection.Open();
                 SqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
@@ -30,6 +31,8 @@ namespace ADO.NET_Task.Repository
                     location.Country = reader["Country"].ToString();
                     location.City = reader["City"].ToString();
                     location.Zip = reader["Zip"].ToString();
+                    location.Latitude = Convert.ToDecimal(reader["Latitude"]);
+                    location.Longitude = Convert.ToDecimal(reader["Longitude"]);
                     location.SubscriberId = Convert.ToInt32(reader["SubscriberId"]);
                 }
                 return location;
@@ -40,7 +43,7 @@ namespace ADO.NET_Task.Repository
         {
             List<Location> locations = new List<Location>();
 
-            using (SqlConnection connection = new SqlConnection())
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 SqlCommand command = new SqlCommand("sp_GetLocations", connection);
                 command.CommandType = CommandType.StoredProcedure;
@@ -61,6 +64,8 @@ namespace ADO.NET_Task.Repository
                         Country = reader["Country"].ToString(),
                         City = reader["City"].ToString(),
                         Zip = reader["Zip"].ToString(),
+                        Latitude = Convert.ToDecimal(reader["Latitude"]),
+                        Longitude = Convert.ToDecimal(reader["Longitude"]),
                         SubscriberId = Convert.ToInt32(reader["SubscriberId"])
                     };
                     locations.Add(location);
@@ -72,57 +77,112 @@ namespace ADO.NET_Task.Repository
 
         public IList<ProviderAssignment> GetLocationAssigments(int locationId)
         {
-            //List<ProviderAssignment> assignments = new List<ProviderAssignment>();
+            List<ProviderAssignment> assignments = new List<ProviderAssignment>();
 
-            //using (SqlConnection connection = new SqlConnection())
-            //{
-            //    SqlCommand command = new SqlCommand("sp_GetLocationAssigments", connection);
-            //    command.CommandType = CommandType.StoredProcedure;
-            //    command.Parameters.AddWithValue("@SubscriberId", subscriberId);
-            //    command.Parameters.AddWithValue("@Page", page);
-            //    command.Parameters.AddWithValue("@PageSize", pageSize);
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand("sp_GetLocationAssigments", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@LocationId", locationId);
 
-            //    connection.Open();
-            //    SqlDataReader reader = command.ExecuteReader();
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
 
-            //    while (reader.Read())
-            //    {
-            //        var location = new Location()
-            //        {
-            //            Id = Convert.ToInt32(reader["Id"]),
-            //            Name = reader["Name"].ToString(),
-            //            Region = reader["Region"].ToString(),
-            //            Country = reader["Country"].ToString(),
-            //            City = reader["City"].ToString(),
-            //            Zip = reader["Zip"].ToString(),
-            //            SubscriberId = Convert.ToInt32(reader["SubscriberId"])
-            //        };
-            //        locations.Add(location);
-
-            //    }
-            //    return locations;
-            //}
-            throw new NotImplementedException();
+                while (reader.Read())
+                {
+                    var assigment = new ProviderAssignment()
+                    {
+                        Id = Convert.ToInt32(reader["Id"]),
+                        Rank = Convert.ToInt32(reader["Rank"]),
+                        Trade = reader["Trade"].ToString(),
+                        ProviderId = Convert.ToInt32(reader["ProviderId"]),
+                        LocationId = Convert.ToInt32(reader["LocationId"])
+                    };
+                    assignments.Add(assigment);
+                }
+                return assignments;
+            }
         }
 
-        public ProviderAssignment GetLocationAssigmentForProvider(int locationId, int providerId)
+        public IList<ProviderAssignment> GetLocationAssigmentForProvider(int locationId, int providerId)
         {
-            throw new NotImplementedException();
+            List<ProviderAssignment> assignments = new List<ProviderAssignment>();
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand("sp_GetLocationAssigmentForProvider", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@LocationId", locationId);
+                command.Parameters.AddWithValue("@ProviderId", providerId);
+
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    var assigment = new ProviderAssignment()
+                    {
+                        Id = Convert.ToInt32(reader["Id"]),
+                        Rank = Convert.ToInt32(reader["Rank"]),
+                        Trade = reader["Trade"].ToString(),
+                        ProviderId = Convert.ToInt32(reader["ProviderId"]),
+                        LocationId = Convert.ToInt32(reader["LocationId"])
+                    };
+                    assignments.Add(assigment);
+                }
+                return assignments;
+            }
         }
 
         public void CreateLocation(Location location)
         {
-            throw new NotImplementedException();
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand("sp_CreateLocation", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@Name", location.Name);
+                command.Parameters.AddWithValue("@Region", location.Region);
+                command.Parameters.AddWithValue("@Country", location.Country);
+                command.Parameters.AddWithValue("@City", location.City);
+                command.Parameters.AddWithValue("@Zip", location.Zip);
+                command.Parameters.AddWithValue("@Latitude", location.Latitude);
+                command.Parameters.AddWithValue("@Longitude", location.Longitude);
+                command.Parameters.AddWithValue("@SubscriberId", location.SubscriberId);
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
         }
 
         public void UpdateLocation(Location location)
         {
-            throw new NotImplementedException();
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand("sp_UpdateLocation", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@Id", location.Id);
+                command.Parameters.AddWithValue("@Name", location.Name);
+                command.Parameters.AddWithValue("@Region", location.Region);
+                command.Parameters.AddWithValue("@Country", location.Country);
+                command.Parameters.AddWithValue("@City", location.City);
+                command.Parameters.AddWithValue("@Zip", location.Zip);
+                command.Parameters.AddWithValue("@Latitude", location.Latitude);
+                command.Parameters.AddWithValue("@Longitude", location.Longitude);
+                command.Parameters.AddWithValue("@SubscriberId", location.SubscriberId);
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
         }
 
         public void DeleteLocation(int locationId)
         {
-            throw new NotImplementedException();
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand("sp_DeleteLocation", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@Id", locationId);
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
         }
     }
 }

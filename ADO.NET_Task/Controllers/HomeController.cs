@@ -13,23 +13,33 @@ namespace ADO.NET_Task.Controllers
         private readonly LocationRepository repository = new LocationRepository();
         
         [HttpGet]
-        public ActionResult Index()
+        public ActionResult Index(int subscriberId = 1, int page = 1, int pageSize = 5)
         {
-            var locations = repository.GetLocations(1, 1, 5);
-            return View(locations);
-        }
+            ViewBag.page = page;
+            ViewBag.pageSize = pageSize;
 
-        [HttpGet]
-        public ActionResult GetLocations(int subscriberId, int page, int pageSize)
-        {
             var locations = repository.GetLocations(subscriberId, page, pageSize);
             return View(locations);
         }
 
         [HttpGet]
-        public ActionResult LocationAssigments(int locationId)
+        public ActionResult Location(int id)
         {
-            var assignments = repository.GetLocationAssigments(locationId);
+            var location = repository.GetLocationById(id);
+            return View(location);
+        }
+
+        [HttpGet]
+        public ActionResult LocationAssigments(int locationId, int? providerId = null)
+        {
+            IList<ProviderAssignment> assignments = new List<ProviderAssignment>();
+            if (providerId != null)
+            {
+                ViewBag.providerId = providerId;
+                assignments = repository.GetLocationAssigmentForProvider(locationId, providerId.Value);
+                return View(assignments);
+            }
+            assignments = repository.GetLocationAssigments(locationId);
             return View(assignments);
         }
 
@@ -38,13 +48,6 @@ namespace ADO.NET_Task.Controllers
         {
             var assignments = repository.GetLocationAssigments(locationId);
             return View(assignments);
-        }
-
-        [HttpGet]
-        public ActionResult Location(int id)
-        {
-            var location = repository.GetLocationById(id);
-            return View(location);
         }
 
         public ActionResult Create()
@@ -59,7 +62,7 @@ namespace ADO.NET_Task.Controllers
             if (ModelState.IsValid)
             {
                 repository.CreateLocation(location);
-                return RedirectToAction("Location", "Home", new { id = location.Id });
+                return RedirectToAction("Index");
             }
             return View();
         }
@@ -80,7 +83,7 @@ namespace ADO.NET_Task.Controllers
         public ActionResult Edit(Location location)
         {
             repository.UpdateLocation(location);
-            return RedirectToAction("Location", "Home", new { id = location.Id });
+            return RedirectToAction("Index");
         }
 
         [HttpPost]

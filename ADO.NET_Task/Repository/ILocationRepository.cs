@@ -12,7 +12,7 @@ namespace ADO.NET_Task.Repository
         Location GetLocationById(int locationId);
         IList<Location> GetLocations(int subscriberId, int page, int pageSize);
         IList<ProviderAssignment> GetLocationAssigments(int locationId);
-        ProviderAssignment GetLocationAssigmentForProvider(int locationId, int providerId);
+        IList<ProviderAssignment> GetLocationAssigmentForProvider(int locationId, int providerId);
         void CreateLocation(Location location);
         void UpdateLocation(Location location);
         void DeleteLocation(int locationId);

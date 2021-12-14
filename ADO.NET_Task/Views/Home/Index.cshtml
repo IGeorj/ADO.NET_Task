@@ -1,0 +1,102 @@
+﻿@model IEnumerable<ADO.NET_Task.Models.Location>
+
+@{
+    ViewBag.Title = "Locations";
+}
+<h2>Locations</h2>
+
+<p>
+    @Html.ActionLink("Create Location", "Create", null, new { @class = "btn btn-success" })
+</p>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Region)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Country)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.City)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Zip)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Latitude)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Longitude)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SubscriberId)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Region)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Country)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.City)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Zip)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Latitude)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Longitude)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SubscriberId)
+            </td>
+            <td>
+                @Html.ActionLink("Assigments", "LocationAssigments", new { locationId = item.Id }) |
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                @Html.ActionLink("Details", "Location", new { id = item.Id }) |
+                @Ajax.ActionLink("Delete", "Delete", new { id = item.Id }, new AjaxOptions
+                {
+                    HttpMethod = "POST",
+               Confirm = "Are you Sure You Want to Delete " + @item.Name,
+               OnSuccess = "RemoveRow"
+           })
+            </td>
+        </tr>
+    }
+
+</table>
+<div class="container">
+    <div>
+        <form action="/Home/Index" method="get">
+            <label for="page">Page</label>
+            <input id="page" name="page" type="number" value="@ViewBag.page" />
+
+            <label for="page">PageSize</label>
+            <input id="pageSize" name="pageSize" type="number" value="@ViewBag.pageSize" />
+
+            <button class="btn btn-primary" type="submit">Refresh</button>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function RemoveRow() {
+        var $tr = $(this).closest('tr');
+        $tr.remove();
+    }
+</script>

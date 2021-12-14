@@ -1,0 +1,63 @@
+﻿@model IEnumerable<ADO.NET_Task.Models.ProviderAssignment>
+
+@{
+    ViewBag.Title = "LocationAssigments";
+}
+
+<h2>LocationAssigments</h2>
+
+@*<p>
+    @Html.ActionLink("Create New", "Create")
+</p>*@
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Rank)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Trade)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ProviderId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.LocationId)
+        </th>
+@*        <th></th>*@
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Rank)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Trade)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ProviderId)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.LocationId)
+        </td>
+@*        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+        </td>*@
+    </tr>
+}
+
+</table>
+
+<div>
+    <form action="/Home/LocationAssigments" method="get">
+        <input id="providerId" name="locationId" type="hidden" value="@Request.QueryString["locationId"]" />
+
+        <label for="providerId">ProviderId</label>
+        <input id="providerId" name="providerId" type="number" value="@ViewBag.providerId" />
+
+        <button class="btn btn-primary" type="submit">Get Data</button>
+        @Html.ActionLink("Reset", "LocationAssigments", new { locationId = Request.QueryString["locationId"] }, new { @class = "btn btn-primary" })
+    </form>
+</div>

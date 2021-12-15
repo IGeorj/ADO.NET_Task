@@ -10,7 +10,12 @@ namespace ADO.NET_Task.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly LocationRepository repository = new LocationRepository();
+        private readonly ILocationRepository _locationRepository;
+        
+        public HomeController (ILocationRepository locationRepository)
+	    {
+            this._locationRepository = locationRepository;
+	    }
         
         [HttpGet]
         public ActionResult Index(int subscriberId = 1, int page = 1, int pageSize = 5)
@@ -18,14 +23,14 @@ namespace ADO.NET_Task.Controllers
             ViewBag.page = page;
             ViewBag.pageSize = pageSize;
 
-            var locations = repository.GetLocations(subscriberId, page, pageSize);
+            var locations = _locationRepository.GetLocations(subscriberId, page, pageSize);
             return View(locations);
         }
 
         [HttpGet]
         public ActionResult Location(int id)
         {
-            var location = repository.GetLocationById(id);
+            var location = _locationRepository.GetLocationById(id);
             return View(location);
         }
 
@@ -36,17 +41,17 @@ namespace ADO.NET_Task.Controllers
             if (providerId != null)
             {
                 ViewBag.providerId = providerId;
-                assignments = repository.GetLocationAssigmentForProvider(locationId, providerId.Value);
+                assignments = _locationRepository.GetLocationAssigmentForProvider(locationId, providerId.Value);
                 return View(assignments);
             }
-            assignments = repository.GetLocationAssigments(locationId);
+            assignments = _locationRepository.GetLocationAssigments(locationId);
             return View(assignments);
         }
 
         [HttpGet]
         public ActionResult LocationAssigmentsForProvider(int locationId, int providerId)
         {
-            var assignments = repository.GetLocationAssigments(locationId);
+            var assignments = _locationRepository.GetLocationAssigments(locationId);
             return View(assignments);
         }
 
@@ -61,7 +66,7 @@ namespace ADO.NET_Task.Controllers
         {
             if (ModelState.IsValid)
             {
-                repository.CreateLocation(location);
+                var loc = _locationRepository.CreateLocation(location);
                 return RedirectToAction("Index");
             }
             return View();
@@ -70,7 +75,7 @@ namespace ADO.NET_Task.Controllers
         [HttpGet]
         public ActionResult Edit(int id)
         {
-            var location = repository.GetLocationById(id);
+            var location = _locationRepository.GetLocationById(id);
             if (location == null)
             {
                 return HttpNotFound();
@@ -82,15 +87,15 @@ namespace ADO.NET_Task.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(Location location)
         {
-            repository.UpdateLocation(location);
+            _locationRepository.UpdateLocation(location);
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         public ActionResult Delete(int id)
         {
-            var location = repository.GetLocationById(id);
-            repository.DeleteLocation(id);
+            var location = _locationRepository.GetLocationById(id);
+            _locationRepository.DeleteLocation(id);
             return RedirectToAction("Index", "Home");
         }
     }

@@ -207,6 +207,7 @@ END
 
 GO
 CREATE PROCEDURE sp_CreateLocation
+    @Name NVARCHAR(50),
     @Region NVARCHAR(50),
     @Country NVARCHAR(50),
     @City NVARCHAR(50),
@@ -217,13 +218,15 @@ CREATE PROCEDURE sp_CreateLocation
 AS
 BEGIN
 	SET NOCOUNT ON
-	INSERT INTO Locations([Region], [Country], [City], [Zip], [Latitude], [Longitude], [SubscriberId])
-	VALUES (@Region, @Country, @City, @Zip, @Latitude, @Longitude, @SubscriberId)
+	INSERT INTO Locations([Name], [Region], [Country], [City], [Zip], [Latitude], [Longitude], [SubscriberId])
+	VALUES (@Name, @Region, @Country, @City, @Zip, @Latitude, @Longitude, @SubscriberId)
+	SELECT * FROM Locations WHERE Id = SCOPE_IDENTITY();
 END
 
 GO
 CREATE PROCEDURE sp_UpdateLocation
 	@Id INT, 
+    @Name NVARCHAR(50),
     @Region NVARCHAR(50),
     @Country NVARCHAR(50),
     @City NVARCHAR(50),
@@ -235,9 +238,10 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	UPDATE Locations
-	SET Region = @Region, Country = @Country, City = @City, Zip = @Zip,
+	SET Name = @Name, Region = @Region, Country = @Country, City = @City, Zip = @Zip,
 		Latitude = @Latitude, Longitude = @Longitude, SubscriberId = @SubscriberId
 	WHERE Id = @Id
+	SELECT * FROM Locations WHERE Id = SCOPE_IDENTITY();
 END
 
 

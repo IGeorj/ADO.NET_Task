@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ADO.NET_Task.Models
 {
-    internal interface IEntity
+    public interface IEntity
     {
         int Id { get; set; }
     }

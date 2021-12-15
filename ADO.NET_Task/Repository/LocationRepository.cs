@@ -134,7 +134,7 @@ namespace ADO.NET_Task.Repository
             }
         }
 
-        public void CreateLocation(Location location)
+        public Location CreateLocation(Location location)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -149,11 +149,27 @@ namespace ADO.NET_Task.Repository
                 command.Parameters.AddWithValue("@Longitude", location.Longitude);
                 command.Parameters.AddWithValue("@SubscriberId", location.SubscriberId);
                 connection.Open();
-                command.ExecuteNonQuery();
+                SqlDataReader reader = command.ExecuteReader();
+
+                Location newLocation = new Location();
+
+                while (reader.Read())
+                {
+                    newLocation.Id = Convert.ToInt32(reader["Id"]);
+                    newLocation.Name = reader["Name"].ToString();
+                    newLocation.Region = reader["Region"].ToString();
+                    newLocation.Country = reader["Country"].ToString();
+                    newLocation.City = reader["City"].ToString();
+                    newLocation.Zip = reader["Zip"].ToString();
+                    newLocation.Latitude = Convert.ToDecimal(reader["Latitude"]);
+                    newLocation.Longitude = Convert.ToDecimal(reader["Longitude"]);
+                    newLocation.SubscriberId = Convert.ToInt32(reader["SubscriberId"]);
+                }
+                return newLocation;
             }
         }
 
-        public void UpdateLocation(Location location)
+        public Location UpdateLocation(Location location)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -169,7 +185,23 @@ namespace ADO.NET_Task.Repository
                 command.Parameters.AddWithValue("@Longitude", location.Longitude);
                 command.Parameters.AddWithValue("@SubscriberId", location.SubscriberId);
                 connection.Open();
-                command.ExecuteNonQuery();
+                SqlDataReader reader = command.ExecuteReader();
+
+                Location newLocation = new Location();
+
+                while (reader.Read())
+                {
+                    newLocation.Id = Convert.ToInt32(reader["Id"]);
+                    newLocation.Name = reader["Name"].ToString();
+                    newLocation.Region = reader["Region"].ToString();
+                    newLocation.Country = reader["Country"].ToString();
+                    newLocation.City = reader["City"].ToString();
+                    newLocation.Zip = reader["Zip"].ToString();
+                    newLocation.Latitude = Convert.ToDecimal(reader["Latitude"]);
+                    newLocation.Longitude = Convert.ToDecimal(reader["Longitude"]);
+                    newLocation.SubscriberId = Convert.ToInt32(reader["SubscriberId"]);
+                }
+                return newLocation;
             }
         }
 

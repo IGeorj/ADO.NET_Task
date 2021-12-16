@@ -1,11 +1,7 @@
-﻿using ADO.NET_Task.Utils;
-using Dapper;
+﻿using Dapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
 
 namespace ADO.NET_Task.Repository
 {
@@ -13,33 +9,62 @@ namespace ADO.NET_Task.Repository
     {
         protected IDbConnection _connection;
 
-        public RepositoryBase(DatabaseOptions options)
+        public RepositoryBase(IDbConnection connection)
         {
-            _connection.ConnectionString = options.ConnectionString;
+            _connection = connection;
         }
 
-        protected List<T> Query<T>(string storedProcName, Dictionary<string, object> parameters = null) 
+        protected T GetFirstFromProc<T>(string storedProcName, DynamicParameters parameters = null)
             where T : class, new()
         {
             try
             {
-                if (storedProcName != null)
-                {
-                    var dynamicParameters = new DynamicParameters(parameters);
-                    var resultsWithParams = _connection.Query<T>(storedProcName,
-                        dynamicParameters, 
-                        commandType: CommandType.StoredProcedure)
-                        .AsList();
-                    return resultsWithParams;
-                }
-
                 _connection.Open();
-                var results = _connection.Query<T>(storedProcName, commandType: CommandType.StoredProcedure).AsList();
+                var result = _connection.QueryFirst<T>(sql: storedProcName,
+                                                          param: parameters,
+                                                          commandType: CommandType.StoredProcedure);
                 _connection.Close();
+
+                return result;
+            }
+            catch (Exception)
+            {
+                _connection.Close();
+                throw;
+            }
+        }
+
+        protected IList<T> GetListFromProc<T>(string storedProcName, DynamicParameters parameters = null) 
+            where T : class, new()
+        {
+            try
+            {
+                _connection.Open();
+                var results = _connection.Query<T>(sql: storedProcName,
+                                                   param: parameters,
+                                                   commandType: CommandType.StoredProcedure).AsList();
+                _connection.Close();
+                
                 return results;
             }
             catch (Exception)
             {
+                _connection.Close();
+                throw;
+            }
+        }
+
+        protected void ExecuteProc(string storedProcName, DynamicParameters parameters = null)
+        {
+            try
+            {
+                _connection.Open();
+                _connection.Execute(sql: storedProcName, param: parameters, commandType: CommandType.StoredProcedure);
+                _connection.Close();
+            }
+            catch (Exception)
+            {
+                _connection.Close();
                 throw;
             }
         }

@@ -3,6 +3,8 @@ using Ninject.Modules;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 
@@ -14,10 +16,8 @@ namespace ADO.NET_Task.Utils
         {
             Bind<ILocationRepository>().To<LocationRepository>();
 
-            DatabaseOptions options = new DatabaseOptions();
-            options.ConnectionString = ConfigurationManager.ConnectionStrings["AdoNetTask"].ConnectionString;
-
-            Bind<DatabaseOptions>().ToConstant(options);
+            string connectionString = ConfigurationManager.ConnectionStrings["AdoNetTask"].ConnectionString;
+            Bind<IDbConnection>().ToConstant(new SqlConnection(connectionString));
         }
     }
 }

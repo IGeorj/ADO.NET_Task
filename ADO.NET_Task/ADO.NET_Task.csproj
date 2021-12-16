@@ -123,7 +123,6 @@
     <Compile Include="Repository\ILocationRepository.cs" />
     <Compile Include="Repository\LocationRepository.cs" />
     <Compile Include="Repository\RepositoryBase.cs" />
-    <Compile Include="Utils\DatabaseOptions.cs" />
     <Compile Include="Utils\NinjectRegistrations.cs" />
   </ItemGroup>
   <ItemGroup>

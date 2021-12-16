@@ -220,7 +220,7 @@ BEGIN
 	SET NOCOUNT ON
 	INSERT INTO Locations([Name], [Region], [Country], [City], [Zip], [Latitude], [Longitude], [SubscriberId])
 	VALUES (@Name, @Region, @Country, @City, @Zip, @Latitude, @Longitude, @SubscriberId)
-	SELECT * FROM Locations WHERE Id = SCOPE_IDENTITY();
+	SELECT * FROM Locations WHERE Id = SCOPE_IDENTITY()
 END
 
 GO
@@ -241,7 +241,8 @@ BEGIN
 	SET Name = @Name, Region = @Region, Country = @Country, City = @City, Zip = @Zip,
 		Latitude = @Latitude, Longitude = @Longitude, SubscriberId = @SubscriberId
 	WHERE Id = @Id
-	SELECT * FROM Locations WHERE Id = SCOPE_IDENTITY();
+
+	SELECT * FROM Locations WHERE Id = @Id
 END
 
 

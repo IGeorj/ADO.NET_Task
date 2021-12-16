@@ -14,7 +14,7 @@ namespace ADO.NET_Task.Controllers
         
         public HomeController (ILocationRepository locationRepository)
 	    {
-            this._locationRepository = locationRepository;
+            _locationRepository = locationRepository;
 	    }
         
         [HttpGet]

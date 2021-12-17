@@ -1,17 +1,21 @@
-﻿using Dapper;
+﻿using ADO.NET_Task.Utils;
+using Dapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ADO.NET_Task.Repository
 {
-    public abstract class RepositoryBase : IDisposable  
+    public abstract class RepositoryBase
     {
-        protected IDbConnection _connection;
+        protected string connectionString;
 
-        public RepositoryBase(IDbConnection connection)
+        public RepositoryBase(IConfiguration configuration)
         {
-            _connection = connection;
+            connectionString = configuration.ConnectionString;
         }
 
         protected T GetFirstFromProc<T>(string storedProcName, DynamicParameters parameters = null)
@@ -19,17 +23,41 @@ namespace ADO.NET_Task.Repository
         {
             try
             {
-                _connection.Open();
-                var result = _connection.QueryFirst<T>(sql: storedProcName,
-                                                          param: parameters,
-                                                          commandType: CommandType.StoredProcedure);
-                _connection.Close();
-
-                return result;
+                using(var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    var result = connection.QueryFirst<T>(storedProcName,
+                                                           parameters,
+                                                           commandType: CommandType.StoredProcedure);
+                    return result;
+                }
             }
             catch (Exception)
             {
-                _connection.Close();
+                throw;
+            }
+        }
+        protected async Task<T> GetFirstFromProcAsync<T>(string storedProcName,
+                                                         DynamicParameters parameters = null,
+                                                         CancellationToken token = default)
+            where T : class, new()
+        {
+            try
+            {
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    var result = await connection.QueryFirstAsync<T>(new CommandDefinition(
+                        storedProcName,
+                        parameters,
+                        commandType: CommandType.StoredProcedure,
+                        cancellationToken: token));
+                    return result;
+                }
+            }
+            catch (Exception)
+            {
                 throw;
             }
         }
@@ -39,17 +67,41 @@ namespace ADO.NET_Task.Repository
         {
             try
             {
-                _connection.Open();
-                var results = _connection.Query<T>(sql: storedProcName,
-                                                   param: parameters,
-                                                   commandType: CommandType.StoredProcedure).AsList();
-                _connection.Close();
-                
-                return results;
+                using(var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    var results = connection.Query<T>(storedProcName,
+                                                       parameters,
+                                                       commandType: CommandType.StoredProcedure).AsList();
+                    return results;
+                }
             }
             catch (Exception)
             {
-                _connection.Close();
+                throw;
+            }
+        }
+
+        protected async Task<IList<T>> GetListFromProcAsync<T>(string storedProcName,
+                                                               DynamicParameters parameters = null,
+                                                               CancellationToken token = default)
+            where T : class, new()
+        {
+            try
+            {
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    var results = await connection.QueryAsync<T>(new CommandDefinition(
+                        storedProcName,
+                        parameters,
+                        commandType: CommandType.StoredProcedure,
+                        cancellationToken: token));
+                    return results.AsList();
+                }
+            }
+            catch (Exception)
+            {
                 throw;
             }
         }
@@ -58,22 +110,38 @@ namespace ADO.NET_Task.Repository
         {
             try
             {
-                _connection.Open();
-                _connection.Execute(sql: storedProcName, param: parameters, commandType: CommandType.StoredProcedure);
-                _connection.Close();
+                using(var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    connection.Execute(storedProcName,
+                                        parameters,
+                                        commandType: CommandType.StoredProcedure);
+                }
             }
             catch (Exception)
             {
-                _connection.Close();
                 throw;
             }
         }
 
-        public void Dispose()
+        protected async Task ExecuteProcAsync(string storedProcName,
+                                              DynamicParameters parameters = null,
+                                              CancellationToken token = default)
         {
-            if( _connection.State == ConnectionState.Open)
+            try
             {
-                _connection.Dispose();
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    await connection.ExecuteAsync(new CommandDefinition(storedProcName,
+                        parameters,
+                        commandType: CommandType.StoredProcedure,
+                        cancellationToken: token));
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }

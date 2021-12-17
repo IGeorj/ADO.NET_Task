@@ -172,9 +172,7 @@ BEGIN
 
 	SELECT * 
 	FROM OrderedSet 
-	ORDER BY [Index]
-	OFFSET @SkipRows ROWS 
-			FETCH NEXT @PageSize ROWS ONLY
+	WHERE [Index] BETWEEN @SkipRows + 1 AND @SkipRows + @PageSize
 END
 
 

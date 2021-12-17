@@ -3,6 +3,8 @@ using ADO.NET_Task.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -18,7 +20,10 @@ namespace ADO.NET_Task.Controllers
 	    }
         
         [HttpGet]
-        public ActionResult Index(int subscriberId = 1, int page = 1, int pageSize = 5)
+        public async Task<ActionResult> Index(CancellationToken token,
+                                              int subscriberId = 1,
+                                              int page = 1,
+                                              int pageSize = 5)
         {
             ViewBag.page = page;
             ViewBag.pageSize = pageSize;
@@ -28,54 +33,52 @@ namespace ADO.NET_Task.Controllers
         }
 
         [HttpGet]
-        public ActionResult Location(int id)
+        public async Task<ActionResult> Location(CancellationToken token, int id)
         {
-            var location = _locationRepository.GetLocationById(id);
+            var location = await _locationRepository.GetLocationByIdAsync(id, token);
             return View(location);
         }
 
         [HttpGet]
-        public ActionResult LocationAssigments(int locationId, int? providerId = null)
+        public async Task<ActionResult> LocationAssigments(CancellationToken token,
+                                                           int locationId,
+                                                           int? providerId = null)
         {
             IList<ProviderAssignment> assignments = new List<ProviderAssignment>();
             if (providerId != null)
             {
                 ViewBag.providerId = providerId;
-                assignments = _locationRepository.GetLocationAssigmentForProvider(locationId, providerId.Value);
+                assignments = await _locationRepository.GetLocationAssigmentForProviderAsync(locationId,
+                                                                                  providerId.Value,
+                                                                                  token);
                 return View(assignments);
             }
-            assignments = _locationRepository.GetLocationAssigments(locationId);
+            assignments = await _locationRepository.GetLocationAssigmentsAsync(locationId, token);
             return View(assignments);
         }
 
         [HttpGet]
-        public ActionResult LocationAssigmentsForProvider(int locationId, int providerId)
+        public async Task<ActionResult> Create()
         {
-            var assignments = _locationRepository.GetLocationAssigments(locationId);
-            return View(assignments);
-        }
-
-        public ActionResult Create()
-        {
-            return View();
+            return await Task.Run(() => View());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Location location)
+        public async Task<ActionResult> Create(CancellationToken token, Location location)
         {
             if (ModelState.IsValid)
             {
-                var loc = _locationRepository.CreateLocation(location);
+                var loc = await _locationRepository.CreateLocationAsync(location, token);
                 return RedirectToAction("Index");
             }
             return View();
         }
 
         [HttpGet]
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(CancellationToken token, int id)
         {
-            var location = _locationRepository.GetLocationById(id);
+            var location = await _locationRepository.GetLocationByIdAsync(id, token);
             if (location == null)
             {
                 return HttpNotFound();
@@ -85,18 +88,18 @@ namespace ADO.NET_Task.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(Location location)
+        public async Task<ActionResult> Edit(CancellationToken token, Location location)
         {
-            _locationRepository.UpdateLocation(location);
+            await _locationRepository.UpdateLocationAsync(location, token);
             return RedirectToAction("Index");
         }
 
         [HttpPost]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(CancellationToken token, int id)
         {
-            var location = _locationRepository.GetLocationById(id);
+            await _locationRepository.GetLocationByIdAsync(id, token);
             _locationRepository.DeleteLocation(id);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index");
         }
     }
 }

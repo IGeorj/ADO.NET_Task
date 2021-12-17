@@ -16,8 +16,7 @@ namespace ADO.NET_Task.Utils
         {
             Bind<ILocationRepository>().To<LocationRepository>();
 
-            string connectionString = ConfigurationManager.ConnectionStrings["AdoNetTask"].ConnectionString;
-            Bind<IDbConnection>().ToConstant(new SqlConnection(connectionString));
+            Bind<IConfiguration>().To<DatabaseOptions>();
         }
     }
 }

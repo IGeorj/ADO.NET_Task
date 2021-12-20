@@ -20,10 +20,10 @@ namespace ADO.NET_Task.Controllers
 	    }
         
         [HttpGet]
-        public async Task<ActionResult> Index(CancellationToken token,
-                                              int subscriberId = 1,
+        public async Task<ActionResult> Index(int subscriberId = 1,
                                               int page = 1,
-                                              int pageSize = 5)
+                                              int pageSize = 5,
+                                              CancellationToken token = default)
         {
             ViewBag.page = page;
             ViewBag.pageSize = pageSize;
@@ -33,16 +33,16 @@ namespace ADO.NET_Task.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Location(CancellationToken token, int id)
+        public async Task<ActionResult> Location(int id, CancellationToken token)
         {
             var location = await _locationRepository.GetLocationByIdAsync(id, token);
             return View(location);
         }
 
         [HttpGet]
-        public async Task<ActionResult> LocationAssigments(CancellationToken token,
-                                                           int locationId,
-                                                           int? providerId = null)
+        public async Task<ActionResult> LocationAssigments(int locationId,
+                                                           int? providerId = null,
+                                                           CancellationToken token = default)
         {
             IList<ProviderAssignment> assignments = new List<ProviderAssignment>();
             if (providerId != null)
@@ -65,7 +65,7 @@ namespace ADO.NET_Task.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(CancellationToken token, Location location)
+        public async Task<ActionResult> Create(Location location, CancellationToken token)
         {
             if (ModelState.IsValid)
             {
@@ -76,7 +76,7 @@ namespace ADO.NET_Task.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Edit(CancellationToken token, int id)
+        public async Task<ActionResult> Edit(int id, CancellationToken token)
         {
             var location = await _locationRepository.GetLocationByIdAsync(id, token);
             if (location == null)
@@ -88,14 +88,14 @@ namespace ADO.NET_Task.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(CancellationToken token, Location location)
+        public async Task<ActionResult> Edit(Location location, CancellationToken token)
         {
             await _locationRepository.UpdateLocationAsync(location, token);
             return RedirectToAction("Index");
         }
 
         [HttpPost]
-        public async Task<ActionResult> Delete(CancellationToken token, int id)
+        public async Task<ActionResult> Delete(int id, CancellationToken token)
         {
             await _locationRepository.GetLocationByIdAsync(id, token);
             _locationRepository.DeleteLocation(id);
